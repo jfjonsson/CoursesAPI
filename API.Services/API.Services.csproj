@@ -53,6 +53,11 @@
     <Compile Include="Entities\CourseEnrolment.cs" />
     <Compile Include="Entities\CourseTemplate.cs" />
     <Compile Include="Entities\Student.cs" />
+    <Compile Include="Exeptions\EntryRemovalFailedException.cs" />
+    <Compile Include="Exeptions\DuplicateEntryException.cs" />
+    <Compile Include="Exeptions\EntryUpdateFailedException.cs" />
+    <Compile Include="Exeptions\NotFoundException.cs" />
+    <Compile Include="Exeptions\CreateEntryFailedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\CoursesServiceProvider.cs" />
     <Compile Include="Repositories\SchoolDbContext.cs" />

@@ -3,6 +3,8 @@ using API.Services.Providers;
 using API.Models.DTOs;
 using API.Models.VMs;
 using System.Net;
+using API.Services.Exeptions;
+using System;
 
 namespace API.Controllers
 {
@@ -37,9 +39,16 @@ namespace API.Controllers
         [Route("{id}", Name = "GetCourseByID")]
         public IHttpActionResult GetCourse(int id)
         {
-            CourseDetailDTO course = _service.getCourseByID(id);
-            if (course == null)
+            CourseDetailDTO course = null;
+            try
+            {
+                course = _service.getCourseByID(id);
+            }
+            catch (NotFoundException e)
+            {
                 return NotFound();
+            }
+
             return Ok(course);
         }
 
@@ -54,7 +63,16 @@ namespace API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            CourseDetailDTO newCourse = _service.addCourse(course);
+            CourseDetailDTO newCourse = null;
+            try
+            {
+                newCourse = _service.addCourse(course);
+            }
+            catch (CreateEntryFailedException e)
+            {
+                return InternalServerError();
+            }
+
             return Created(Url.Link("GetCourseByID", new { id = newCourse.ID } ), newCourse);
         }
 
@@ -69,12 +87,22 @@ namespace API.Controllers
         public IHttpActionResult UpdateCourse(int id, [FromBody] CourseUpdateDetailViewModel course)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest("CourseViewModel not valid!");
 
-            CourseDetailDTO upCourse = _service.updateCourse(id, course);
+            CourseDetailDTO upCourse = null;
 
-            if (upCourse == null)
+            try
+            {
+                upCourse = _service.updateCourse(id, course);
+            }
+            catch (NotFoundException e)
+            {
                 return NotFound();
+            }
+            catch (CreateEntryFailedException e)
+            {
+                return InternalServerError();
+            }
 
             return Ok(upCourse);
         }
@@ -88,12 +116,20 @@ namespace API.Controllers
         [Route("{id}", Name = "RemoveCourse")]
         public IHttpActionResult RemoveCourse(int id)
         {
-            bool success = _service.removeCourse(id);
+            try
+            {
+                _service.removeCourse(id);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound();
+            }
+            catch (EntryRemovalFailedException e)
+            {
+                return InternalServerError();
+            }
 
-            if (success)
-                return StatusCode(HttpStatusCode.NoContent);
-            else
-                return BadRequest();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -105,8 +141,14 @@ namespace API.Controllers
         [Route("{id}/students", Name = "GetStudentsInCourse")]
         public IHttpActionResult GetStudents(int id)
         {
-
-            return null;
+            try
+            {
+                return Ok(_service.getAllStudents(id));
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound();
+            }
         }
 
         /// <summary>
@@ -119,7 +161,24 @@ namespace API.Controllers
         [Route("{id}/students", Name = "AddStudentToCourse")]
         public IHttpActionResult AddStudent(int id, [FromBody] StudentViewModel student)
         {
-            return null;
+            if (!ModelState.IsValid)
+                return BadRequest("StudentViewModel not valid!");
+            try
+            {
+                return Ok(_service.addStudentToCourse(id, student));
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound();
+            }
+            catch (DuplicateEntryException e)
+            {
+                return BadRequest("Student already in course!");
+            }
+            catch (CreateEntryFailedException e)
+            {
+                return InternalServerError();
+            }
         }
     }
 }

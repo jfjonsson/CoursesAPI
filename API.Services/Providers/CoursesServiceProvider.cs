@@ -5,6 +5,7 @@ using API.Services.Entities;
 using API.Services.Repositories;
 using System.Linq;
 using System;
+using API.Services.Exeptions;
 
 namespace API.Services.Providers
 {
@@ -22,10 +23,10 @@ namespace API.Services.Providers
 
         public void Seed()
         {
-            _db.Database.ExecuteSqlCommand("DELETE FROM Courses");
-            _db.Database.ExecuteSqlCommand("DELETE FROM Students");
-            _db.Database.ExecuteSqlCommand("DELETE FROM CourseTemplates");
-            _db.Database.ExecuteSqlCommand("DELETE FROM CourseEnrolments");
+            _db.Database.ExecuteSqlCommand("TRUNCATE TABLE Courses");
+            _db.Database.ExecuteSqlCommand("TRUNCATE TABLE Students");
+            _db.Database.ExecuteSqlCommand("TRUNCATE TABLE CourseTemplates");
+            _db.Database.ExecuteSqlCommand("TRUNCATE TABLE CourseEnrolments");
 
             _db.Courses.AddRange(new List<Entities.Course>
             {
@@ -75,10 +76,10 @@ namespace API.Services.Providers
                           where c.Semester == semester
                           select new CourseDTO
                           {
-                              ID         = c.ID,
+                              ID = c.ID,
                               TemplateID = c.TemplateID,
-                              Semester   = c.Semester,
-                              Name       = ct.Name
+                              Semester = c.Semester,
+                              Name = ct.Name
                           }).ToList();
 
             return result;
@@ -86,27 +87,39 @@ namespace API.Services.Providers
 
         public CourseDetailDTO addCourse(CourseDetailViewModel course)
         {
-            var newCourse =_db.Courses.Add(new Course {
-                TemplateID = course.TemplateID,
-                Semester   = course.Semester,
-                StartDate  = course.StartDate,
-                EndDate    = course.EndDate
-            });
-
-            if (newCourse == null)
-                throw new CreateFailedException();
-
-            CourseDetailDTO c = new CourseDetailDTO
-            {
-                ID = newID,
-                Name = getCourseName(course.TemplateID),
+            var newCourse = _db.Courses.Add(new Course {
                 TemplateID = course.TemplateID,
                 Semester = course.Semester,
                 StartDate = course.StartDate,
                 EndDate = course.EndDate
-            };
+            });
 
-            return c;
+            try
+            {
+                _db.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                throw new CreateEntryFailedException(e);
+            }
+
+            return getCourseByID(newCourse.ID);
+        }
+
+        public void removeCourse(int courseID)
+        {
+            var course = _db.Courses.SingleOrDefault(c => c.ID == courseID);
+
+            if (course == null)
+                throw new NotFoundException();
+            try
+            {
+                _db.Courses.Remove(course);
+            }
+            catch (Exception e)
+            {
+                throw new EntryRemovalFailedException(e);
+            }
         }
 
 
@@ -117,42 +130,32 @@ namespace API.Services.Providers
                           where c.ID == courseID
                           select new CourseDetailDTO
                           {
-                              ID           = c.ID,
-                              TemplateID   = c.TemplateID,
-                              Semester     = c.Semester,
-                              Name         = ct.Name,
-                              StartDate    = c.StartDate,
-                              EndDate      = c.EndDate,
-                              Students     = getAllStudents(c.ID),
-                              StudentCount = getStudentCount(c.ID)
+                              ID = c.ID,
+                              TemplateID = c.TemplateID,
+                              Semester = c.Semester,
+                              Name = ct.Name,
+                              StartDate = c.StartDate,
+                              EndDate = c.EndDate
                           }).SingleOrDefault();
+
+            if (result == null)
+                throw new NotFoundException();
+
+            result.Students = getAllStudents(result.ID);
+            result.StudentCount = result.Students.Count;
+
             return result;
         }
 
         public CourseDetailDTO updateCourse(int courseID, CourseUpdateDetailViewModel course)
         {
-            /*var query = from c in _db.Courses
-                        where c.ID == courseID
-                        select c;*/
-            /*foreach (Course c in query)
-            {
-                c.TemplateID = course.TemplateID;
-                c.Semester = course.Semester;
-                c.StartDate = course.StartDate;
-                c.EndDate = course.EndDate;
-            }
-            */
+            var result = _db.Courses.SingleOrDefault(c => c.ID == courseID);
 
+            if (result == null)
+                throw new NotFoundException();
 
-            var res = _db.Courses.SingleOrDefault(c => c.ID == courseID);
-
-            //if(res == null)
-            //    throw new NotFoundException();
-
-            res.EndDate = course.EndDate;
-            res.StartDate = course.StartDate;
-            res.Semester = course.Semester;
-            res.TemplateID = course.TemplateID;
+            result.EndDate = course.EndDate;
+            result.StartDate = course.StartDate;
 
             try
             {
@@ -160,24 +163,30 @@ namespace API.Services.Providers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                throw new EntryUpdateFailedException(e);
             }
-            // TODO
-            return null;
+
+            return getCourseByID(result.ID);
         }
 
         public List<StudentDTO> getAllStudents(int courseID)
         {
+            var course = _db.Courses.SingleOrDefault(c => c.ID == courseID);
+
+            if (course == null)
+                throw new NotFoundException();
+
             var result = (from s in _db.Students
                           join ce in _db.CourseEnrolments on s.ID equals ce.StudentID
                           where ce.CourseID == courseID
                           select new StudentDTO
                           {
-                              ID   = s.ID,
+                              ID = s.ID,
                               Name = s.Name,
-                              SSN  = s.SSN
+                              SSN = s.SSN
                           }).ToList();
-            return null;
+
+            return result;
         }
 
         private int getStudentCount(int courseID)
@@ -190,25 +199,32 @@ namespace API.Services.Providers
             return _db.CourseTemplates.SingleOrDefault(ct => ct.TemplateID == templateID).Name;
         }
 
-        public StudentDTO addStudentToCourse(StudentViewModel student)
+        public List<StudentDTO> addStudentToCourse(int courseID, StudentViewModel studentModel)
         {
-            //Take courseID in as a parameter to know which course to add to.
+            var course = _db.Courses.SingleOrDefault(c => c.ID == courseID);
 
+            var student = _db.Students.SingleOrDefault(s => s.SSN == studentModel.SSN);
 
-            int newID = _db.Students.Add(new Student
+            if (course == null || student == null)
+                throw new NotFoundException();
+
+            var enroled = _db.CourseEnrolments.SingleOrDefault(e => e.CourseID == course.ID && e.StudentID == student.ID);
+
+            if (enroled != null)
+                throw new DuplicateEntryException();
+
+            _db.CourseEnrolments.Add(new CourseEnrolment { CourseID = course.ID, StudentID = student.ID });
+
+            try
             {
-                Name = student.Name,
-                SSN = student.SSN
-            }).ID;
-
-            StudentDTO c = new StudentDTO
+                _db.SaveChanges();
+            }
+            catch (Exception e)
             {
-                Name = student.Name,
-                SSN = student.SSN 
-            };
+                throw new CreateEntryFailedException(e);
+            }
 
-            return c;
-           
+            return getAllStudents(course.ID);
         }
     }
 }
