@@ -145,12 +145,17 @@ namespace API.Services.Providers
             return null;
         }
 
-        public int getStudentCount(int courseID)
+        private int getStudentCount(int courseID)
         {
             return (from s in _db.CourseEnrolments where s.CourseID == courseID select s).ToList().Count();
         }
 
-        public StudentDTO addStudent(StudentDTO student)
+        private string getCourseName(string templateID)
+        {
+            return _db.CourseTemplates.SingleOrDefault(ct => ct.TemplateID == templateID).Name;
+        }
+
+        public StudentDTO addStudentToCourse(StudentViewModel student)
         {
             // TODO
             return null;
