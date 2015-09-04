@@ -94,7 +94,7 @@ namespace API.Services.Providers
             }).ID;
 
             CourseDetailDTO c = new CourseDetailDTO
-        {
+            {
                 //Name = course.Na
                 TemplateID = course.TemplateID,
                 Semester = course.Semester,
@@ -127,6 +127,37 @@ namespace API.Services.Providers
 
         public CourseDetailDTO updateCourse(int courseID, CourseDetailDTO course)
         {
+            /*var query = from c in _db.Courses
+                        where c.ID == courseID
+                        select c;*/
+            /*foreach (Course c in query)
+            {
+                c.TemplateID = course.TemplateID;
+                c.Semester = course.Semester;
+                c.StartDate = course.StartDate;
+                c.EndDate = course.EndDate;
+            }
+            */
+
+
+            var res = _db.Courses.SingleOrDefault(c => c.ID == courseID);
+
+            //if(res == null)
+            //    throw new NotFoundException();
+
+            res.EndDate = course.EndDate;
+            res.StartDate = course.StartDate;
+            res.Semester = course.Semester;
+            res.TemplateID = course.TemplateID;
+
+            try
+            {
+                _db.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             // TODO
             return null;
         }
@@ -157,8 +188,23 @@ namespace API.Services.Providers
 
         public StudentDTO addStudentToCourse(StudentViewModel student)
         {
-            // TODO
-            return null;
+            //Take courseID in as a parameter to know which course to add to.
+
+
+            int newID = _db.Students.Add(new Student
+            {
+                Name = student.Name,
+                SSN = student.SSN
+            }).ID;
+
+            StudentDTO c = new StudentDTO
+            {
+                Name = student.Name,
+                SSN = student.SSN 
+            };
+
+            return c;
+           
         }
     }
 }
