@@ -41,11 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CourseDetailDTO.cs" />
-    <Compile Include="CourseDTO.cs" />
+    <Compile Include="DTOs\CourseDetailDTO.cs" />
+    <Compile Include="DTOs\CourseDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StudentDTO.cs" />
+    <Compile Include="DTOs\StudentDTO.cs" />
+    <Compile Include="VMs\CourseViewModel.cs" />
+    <Compile Include="VMs\CourseDetailViewModel.cs" />
+    <Compile Include="VMs\StudentViewModel.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

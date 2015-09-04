@@ -1,19 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace API.Models
+namespace API.Models.VMs
 {
-    /// <summary>
-    /// This class representing a single course at our school.
-    /// Contains various details about the course but not all.
-    /// </summary>
-    public class CourseDTO
+    class Course
     {
-        /// <summary>
-        /// Unique identifier for the Course.
-        /// Example: 2115
-        /// </summary>
-        public int ID { get; set; }
-
         /// <summary>
         /// The name of the course.
         /// Example: "Vefþjónustur"
