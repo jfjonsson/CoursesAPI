@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Web.Http;
 using API.Services.Providers;
 using API.Models;
+using API.Models.VMs;
 
 namespace API.Controllers
 {
@@ -46,7 +47,7 @@ namespace API.Controllers
 
         [HttpPost]
         [Route("")]
-        public IHttpActionResult AddCourse([FromBody] CourseDetailDTO course)
+        public IHttpActionResult AddCourse([FromBody] CourseDetailViewModel course)
         {
             if (!ModelState.IsValid)
                 return BadRequest();

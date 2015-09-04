@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using API.Models.VMs;
 using API.Models;
 using API.Services.Repositories;
 using System.Linq;
@@ -39,11 +40,27 @@ namespace API.Services.Providers
             return result;
         }
 
-        // DUNO
-        public CourseDetailDTO addCourse(CourseDetailDTO course)
+        public CourseDetailDTO addCourse(CourseDetailViewModel course)
         {
-            return null;
+            int newID =_db.Courses.Add(new Course {
+                TemplateID = course.TemplateID,
+                Semester = course.Semester,
+                StartDate = course.StartDate,
+                EndDate = course.EndDate
+            }).ID;
+
+            CourseDetailDTO c = new CourseDetailDTO
+            {
+                //Name = course.Na
+                TemplateID = course.TemplateID,
+                Semester = course.Semester,
+                StartDate = course.StartDate,
+                EndDate = course.EndDate,
+            };
+
+            return c;
         }
+
 
         public CourseDetailDTO getCourseByID(int courseID)
         {
