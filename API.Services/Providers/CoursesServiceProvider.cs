@@ -84,6 +84,11 @@ namespace API.Services.Providers
             return result;
         }
 
+        public bool removeCourse(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         // DUNO
         public CourseDetailDTO addCourse(CourseDetailViewModel course)
         {
@@ -109,7 +114,7 @@ namespace API.Services.Providers
             return result;
         }
 
-        public CourseDetailDTO updateCourse(int courseID, CourseDetailDTO course)
+        public CourseDetailDTO updateCourse(int courseID, CourseUpdateDetailViewModel course)
         {
             // TODO
             return null;
