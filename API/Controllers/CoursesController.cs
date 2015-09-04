@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using API.Services.Providers;
-using API.Models;
+using API.Models.DTOs;
 using API.Models.VMs;
 
 namespace API.Controllers
