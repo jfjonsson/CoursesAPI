@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
-using API.Models;
+using API.Models.DTOs;
+using API.Models.VMs;
+using API.Services.Entities;
 using API.Services.Repositories;
 using System.Linq;
-using API.Services.Entities;
+using System;
 
 namespace API.Services.Providers
 {
@@ -16,6 +18,49 @@ namespace API.Services.Providers
         public CoursesServiceProvider()
         {
             _db = new SchoolDbContext();
+        }
+
+        public void Seed()
+        {
+            _db.Database.ExecuteSqlCommand("DELETE FROM Courses");
+            _db.Database.ExecuteSqlCommand("DELETE FROM Students");
+            _db.Database.ExecuteSqlCommand("DELETE FROM CourseTemplates");
+            _db.Database.ExecuteSqlCommand("DELETE FROM CourseEnrolments");
+
+            _db.Courses.AddRange(new List<Entities.Course>
+            {
+                new Entities.Course { TemplateID = "T-514-VEFT", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19) },
+                new Entities.Course { TemplateID = "T-514-VEFT", Semester = "20153", StartDate = new DateTime(2015, 8, 17), EndDate = new DateTime(2015, 11, 21) },
+                new Entities.Course { TemplateID = "T-111-PROG", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19) }
+            });
+            _db.SaveChanges();
+
+            _db.CourseTemplates.AddRange(new List<CourseTemplate>
+            {
+                new CourseTemplate { TemplateID = "T-514-VEFT", Name = "Vefþjónustur" },
+                new CourseTemplate { TemplateID = "T-111-PROG", Name = "Forritun" },
+            });
+            _db.SaveChanges();
+
+            _db.Students.AddRange(new List<Entities.Student>
+            {
+                new Entities.Student { SSN = "1234567890", Name = "Jón Jónsson" },
+                new Entities.Student { SSN = "9876543210", Name = "Guðrún Jónsdóttir" },
+                new Entities.Student { SSN = "6543219870", Name = "Gunnar Sigurðsson" },
+                new Entities.Student { SSN = "4567891230", Name = "Jóna Halldórsdóttir" }
+            });
+            _db.SaveChanges();
+
+            _db.CourseEnrolments.AddRange(new List<CourseEnrolment>
+            {
+                new CourseEnrolment { CourseID = 1, StudentID = 1 },
+                new CourseEnrolment { CourseID = 1, StudentID = 2 },
+                new CourseEnrolment { CourseID = 2, StudentID = 3 },
+                new CourseEnrolment { CourseID = 2, StudentID = 4 },
+                new CourseEnrolment { CourseID = 3, StudentID = 1 },
+                new CourseEnrolment { CourseID = 3, StudentID = 2 }
+            });
+            _db.SaveChanges();
         }
 
         public List<CourseDTO> getAllCourses(string semester = null)
@@ -40,7 +85,7 @@ namespace API.Services.Providers
         }
 
         // DUNO
-        public CourseDetailDTO addCourse(CourseDetailDTO course)
+        public CourseDetailDTO addCourse(CourseDetailViewModel course)
         {
             return null;
         }

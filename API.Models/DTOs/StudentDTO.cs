@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace API.Models
+namespace API.Models.DTOs
 {
     /// <summary>
     /// This class represents a single student at our school

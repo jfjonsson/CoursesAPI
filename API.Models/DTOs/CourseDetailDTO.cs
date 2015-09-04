@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace API.Models
+namespace API.Models.DTOs
 {
     /// <summary>
     /// This class representing a more detailed view of a course at our school.
