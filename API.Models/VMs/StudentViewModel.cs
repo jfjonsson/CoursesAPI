@@ -2,7 +2,7 @@
 
 namespace API.Models.VMs
 {
-    public class Student
+    public class StudentViewModel
     {
         /// <summary>
         /// The students full name.

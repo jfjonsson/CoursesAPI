@@ -2,7 +2,7 @@
 
 namespace API.Models.VMs
 {
-    public class Course
+    public class CourseViewModel
     {
         /// <summary>
         /// The name of the course.
