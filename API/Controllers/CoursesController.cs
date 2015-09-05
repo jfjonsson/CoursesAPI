@@ -8,11 +8,16 @@ using System;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Simple WebAPI for the courses in our school.
+    /// </summary>
     [RoutePrefix("api/courses")]
     public class CoursesController : ApiController
     {
         private readonly CoursesServiceProvider _service;
-
+        /// <summary>
+        /// 
+        /// </summary>
         CoursesController()
         {
             _service = new CoursesServiceProvider();
@@ -22,38 +27,49 @@ namespace API.Controllers
         /// Retrieves all the courses for the current semester, or for the
         /// specified semester.
         /// </summary>
-        /// <returns>List of Course DTO models</returns>
+        /// <param name="semester">String identifier for the semester yyyys y = year s = semester </param>
+        /// <returns>List of simple course details</returns>
+
         [HttpGet]
         [Route("", Name = "GetAllCourses")]
         public IHttpActionResult GetCourses(string semester = null)
         {
-            return Ok(_service.getAllCourses(semester));
+            try
+            {
+                return Ok(_service.getAllCourses(semester));
+            }
+            catch (Exception)
+            {
+
+                return InternalServerError();
+            }
         }
 
         /// <summary>
         /// Retrieve the course with the specified ID
         /// </summary>
-        /// <param name="courseID">The int ID for the course</param>
-        /// <returns>Single Course DTO Model</returns>
+        /// <param name="id">The int ID for the course</param>
+        /// <returns>Detail for a single course</returns>
         [HttpGet]
         [Route("{id}", Name = "GetCourseByID")]
         public IHttpActionResult GetCourse(int id)
         {
-            CourseDetailDTO course = null;
             try
             {
-                course = _service.getCourseByID(id);
+                return Ok(_service.getCourseByID(id));
             }
             catch (NotFoundException e)
             {
                 return NotFound();
             }
-
-            return Ok(course);
+            catch (DbException e)
+            {
+                return InternalServerError();
+            }
         }
 
         /// <summary>
-        /// Add a new course and return object and location, otherwise return bad request.
+        /// Add a new course.
         /// </summary>
         /// <param name="course">A valid course view model</param>
         /// <returns>Bad request or Created status with resulting course</returns>
@@ -62,24 +78,23 @@ namespace API.Controllers
         public IHttpActionResult AddCourse([FromBody] CourseDetailViewModel course)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
-            CourseDetailDTO newCourse = null;
+                return BadRequest("Course model is not valid!");
+
             try
             {
-                newCourse = _service.addCourse(course);
+                var newCourse = _service.addCourse(course);
+                return Created(Url.Link("GetCourseByID", new { id = newCourse.ID }), newCourse);
             }
-            catch (CreateEntryFailedException e)
+            catch (DbException e)
             {
                 return InternalServerError();
             }
-
-            return Created(Url.Link("GetCourseByID", new { id = newCourse.ID } ), newCourse);
         }
 
         /// <summary>
         /// Update an existing course with new data. 
         /// </summary>
-        /// <param name="courseID">The id of the course to be updated</param>
+        /// <param name="id">The id of the course to be updated</param>
         /// <param name="course">The updated course data</param>
         /// <returns>The updated course and location</returns>
         [HttpPut]
@@ -87,31 +102,27 @@ namespace API.Controllers
         public IHttpActionResult UpdateCourse(int id, [FromBody] CourseUpdateDetailViewModel course)
         {
             if (!ModelState.IsValid)
-                return BadRequest("CourseViewModel not valid!");
-
-            CourseDetailDTO upCourse = null;
+                return BadRequest("Course model not valid!");
 
             try
             {
-                upCourse = _service.updateCourse(id, course);
+                return Ok(_service.updateCourse(id, course));
             }
             catch (NotFoundException e)
             {
                 return NotFound();
             }
-            catch (CreateEntryFailedException e)
+            catch (DbException e)
             {
                 return InternalServerError();
             }
-
-            return Ok(upCourse);
         }
 
         /// <summary>
-        /// 
+        /// Attempt to remove a course with the given ID
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">The ID of the course</param>
+        /// <returns>No content</returns>
         [HttpDelete]
         [Route("{id}", Name = "RemoveCourse")]
         public IHttpActionResult RemoveCourse(int id)
@@ -119,24 +130,23 @@ namespace API.Controllers
             try
             {
                 _service.removeCourse(id);
+                return StatusCode(HttpStatusCode.NoContent);
             }
             catch (NotFoundException e)
             {
                 return NotFound();
             }
-            catch (EntryRemovalFailedException e)
+            catch (DbException e)
             {
                 return InternalServerError();
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         /// <summary>
-        /// 
+        /// Get a list of all the students in a course.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">The ID of the course</param>
+        /// <returns>A list of all the students.</returns>
         [HttpGet]
         [Route("{id}/students", Name = "GetStudentsInCourse")]
         public IHttpActionResult GetStudents(int id)
@@ -152,11 +162,11 @@ namespace API.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Enrole a student in a course.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="student"></param>
-        /// <returns></returns>
+        /// <param name="id">The ID of the course to enrole the student in.</param>
+        /// <param name="student">The student view model.</param>
+        /// <returns>The updated student list of students for the course.</returns>
         [HttpPost]
         [Route("{id}/students", Name = "AddStudentToCourse")]
         public IHttpActionResult AddStudent(int id, [FromBody] StudentViewModel student)
@@ -175,7 +185,7 @@ namespace API.Controllers
             {
                 return BadRequest("Student already in course!");
             }
-            catch (CreateEntryFailedException e)
+            catch (DbException e)
             {
                 return InternalServerError();
             }

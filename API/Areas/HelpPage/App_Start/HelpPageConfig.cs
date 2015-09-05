@@ -2,6 +2,7 @@
 // package to your project.
 ////#define Handle_PageResultOfT
 
+using API.Models.DTOs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace API.Areas.HelpPage
         public static void Register(HttpConfiguration config)
         {
             //// Uncomment the following to use the documentation from XML documentation file.
-            //config.SetDocumentationProvider(new XmlDocumentationProvider(HttpContext.Current.Server.MapPath("~/App_Data/XmlDocument.xml")));
+            config.SetDocumentationProvider(new XmlDocumentationProvider(HttpContext.Current.Server.MapPath("~/App_Data/API.xml")));
 
             //// Uncomment the following to use "sample string" as the sample for all actions that have string as the body parameter or return type.
             //// Also, the string arrays will be used for IEnumerable<string>. The sample objects will be serialized into different media type 
@@ -58,6 +59,13 @@ namespace API.Areas.HelpPage
             config.SetSampleForMediaType(
                 new TextSample("Binary JSON content. See http://bsonspec.org for details."),
                 new MediaTypeHeaderValue("application/bson"));
+
+            config.SetActualResponseType(typeof(List<CourseDTO>), "Courses", "GetCourses");
+            config.SetActualResponseType(typeof(CourseDetailDTO), "Courses", "GetCourse");
+            config.SetActualResponseType(typeof(CourseDetailDTO), "Courses", "AddCourse");
+            config.SetActualResponseType(typeof(CourseDetailDTO), "Courses", "UpdateCourse");
+            config.SetActualResponseType(typeof(List<StudentDTO>), "Courses", "GetStudents");
+            config.SetActualResponseType(typeof(List<StudentDTO>), "Courses", "AddStudent");
 
             //// Uncomment the following to use "[0]=foo&[1]=bar" directly as the sample for all actions that support form URL encoded format
             //// and have IEnumerable<string> as the body parameter or return type.
