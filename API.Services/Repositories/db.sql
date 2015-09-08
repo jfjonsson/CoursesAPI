@@ -1,11 +1,13 @@
 ﻿CREATE TABLE [dbo].[Courses] (
-    [ID]         INT          IDENTITY (1, 1) NOT NULL,
-    [TemplateID] VARCHAR (20) NOT NULL,
-    [Semester]   VARCHAR (10) NOT NULL,
-    [StartDate]  DATETIME     NOT NULL,
-    [EndDate]    DATETIME     NOT NULL,
+    [ID]          INT          IDENTITY (1, 1) NOT NULL,
+    [TemplateID]  VARCHAR (20) NOT NULL,
+    [Semester]    VARCHAR (10) NOT NULL,
+    [StartDate]   DATETIME     NOT NULL,
+    [EndDate]     DATETIME     NOT NULL,
+    [MaxStudents] INT          NULL,
     PRIMARY KEY CLUSTERED ([ID] ASC)
 );
+
 
 CREATE TABLE [dbo].[Students] (
     [ID]   INT          IDENTITY (1, 1) NOT NULL,
@@ -25,6 +27,13 @@ CREATE TABLE [dbo].[CourseEnrolments] (
     [ID]        INT IDENTITY (1, 1) NOT NULL,
     [CourseID]  INT NOT NULL,
     [StudentID] INT NOT NULL,
+    [Active]    BIT  NOT NULL DEFAULT 1,
     PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 
+CREATE TABLE [dbo].[CourseWaitinglists] (
+    [ID]        INT IDENTITY (1, 1) NOT NULL,
+    [CourseID]  INT NOT NULL,
+    [StudentID] INT NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC)
+);
