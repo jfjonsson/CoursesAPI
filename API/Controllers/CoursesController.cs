@@ -5,6 +5,7 @@ using API.Models.VMs;
 using System.Net;
 using API.Services.Exeptions;
 using System;
+using System.Net.Http;
 
 namespace API.Controllers
 {
@@ -183,7 +184,8 @@ namespace API.Controllers
             }
             catch (DuplicateEntryException e)
             {
-                return BadRequest("Student already in course!");
+                //return new HttpResponseMessage() { Content = new StringContent("bla"), StatusCode = HttpStatusCode.PreconditionFailed };
+                return StatusCode(HttpStatusCode.PreconditionFailed);
             }
             catch (DbException e)
             {

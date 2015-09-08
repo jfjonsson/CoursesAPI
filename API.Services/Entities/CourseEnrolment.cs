@@ -15,5 +15,10 @@
         /// The ID of the student that is enroled in the course
         /// </summary>
         public int StudentID { get; set; }
+
+        /// <summary>
+        /// Indicates whether the student enrolement is active or inactive.
+        /// </summary>
+        public bool Active { get; set; }
     }
 }

@@ -37,5 +37,11 @@ namespace API.Services.Entities
         /// </summary>
         public DateTime EndDate { get; set; }
 
+        /// <summary>
+        /// The maximum number of students that can be enroled in the class at any given time.
+        /// Example: 35
+        /// </summary>
+        public int MaxStudents { get; set; }
+
     }
 }

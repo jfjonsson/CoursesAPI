@@ -55,6 +55,11 @@ namespace API.Models.DTOs
         /// <summary>
         /// A list of all the students in the course.
         /// </summary>
+        public int MaxStudents{ get; set; }
+
+        /// <summary>
+        /// A list of all the students in the course.
+        /// </summary>
         public List<StudentDTO> Students { get; set; }
     }
 }

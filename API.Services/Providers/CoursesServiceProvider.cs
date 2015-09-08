@@ -31,11 +31,11 @@ namespace API.Services.Providers
             _db.Database.ExecuteSqlCommand("TRUNCATE TABLE CourseTemplates");
             _db.Database.ExecuteSqlCommand("TRUNCATE TABLE CourseEnrolments");
 
-            _db.Courses.AddRange(new List<Entities.Course>
+            _db.Courses.AddRange(new List<Course>
             {
-                new Entities.Course { TemplateID = "T-514-VEFT", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19) },
-                new Entities.Course { TemplateID = "T-514-VEFT", Semester = "20153", StartDate = new DateTime(2015, 8, 17), EndDate = new DateTime(2015, 11, 21) },
-                new Entities.Course { TemplateID = "T-111-PROG", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19) }
+                new Course { TemplateID = "T-514-VEFT", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19), MaxStudents = 5 },
+                new Course { TemplateID = "T-514-VEFT", Semester = "20153", StartDate = new DateTime(2015, 8, 17), EndDate = new DateTime(2015, 11, 21), MaxStudents = 10 },
+                new Course { TemplateID = "T-111-PROG", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19), MaxStudents = 5 }
             });
             _db.SaveChanges();
 
@@ -46,25 +46,39 @@ namespace API.Services.Providers
             });
             _db.SaveChanges();
 
-            _db.Students.AddRange(new List<Entities.Student>
+            _db.Students.AddRange(new List<Student>
             {
-                new Entities.Student { SSN = "1234567890", Name = "Jón Jónsson" },
-                new Entities.Student { SSN = "9876543210", Name = "Guðrún Jónsdóttir" },
-                new Entities.Student { SSN = "6543219870", Name = "Gunnar Sigurðsson" },
-                new Entities.Student { SSN = "4567891230", Name = "Jóna Halldórsdóttir" }
+                new Student { SSN = "1234567890", Name = "Jón Jónsson" },
+                new Student { SSN = "9876543210", Name = "Guðrún Jónsdóttir" },
+                new Student { SSN = "6543219870", Name = "Gunnar Sigurðsson" },
+                new Student { SSN = "4567891230", Name = "Jóna Halldórsdóttir" },
+                new Student { SSN = "1234567890", Name = "Herp McDerpsson 1" },
+                new Student { SSN = "1234567891", Name = "Herpina Derpy 1" },
+                new Student { SSN = "1234567892", Name = "Herp McDerpsson 2" },
+                new Student { SSN = "1234567893", Name = "Herpina Derpy 2" },
+                new Student { SSN = "1234567894", Name = "Herp McDerpsson 3" },
+                new Student { SSN = "1234567895", Name = "Herpina Derpy 3" },
+                new Student { SSN = "1234567896", Name = "Herp McDerpsson 4" },
+                new Student { SSN = "1234567897", Name = "Herpina Derpy 4" },
+                new Student { SSN = "1234567898", Name = "Herp McDerpsson 5" },
+                new Student { SSN = "1234567899", Name = "Herpina Derpy 5" }
             });
             _db.SaveChanges();
 
             _db.CourseEnrolments.AddRange(new List<CourseEnrolment>
             {
-                new CourseEnrolment { CourseID = 1, StudentID = 1 },
-                new CourseEnrolment { CourseID = 1, StudentID = 2 },
-                new CourseEnrolment { CourseID = 2, StudentID = 3 },
-                new CourseEnrolment { CourseID = 2, StudentID = 4 },
-                new CourseEnrolment { CourseID = 3, StudentID = 1 },
-                new CourseEnrolment { CourseID = 3, StudentID = 2 }
+                new CourseEnrolment { CourseID = 1, StudentID = 1, Active = true },
+                new CourseEnrolment { CourseID = 1, StudentID = 2, Active = true },
+                new CourseEnrolment { CourseID = 2, StudentID = 3, Active = true },
+                new CourseEnrolment { CourseID = 2, StudentID = 4, Active = true },
+                new CourseEnrolment { CourseID = 3, StudentID = 1, Active = true },
+                new CourseEnrolment { CourseID = 3, StudentID = 2, Active = true },
+                new CourseEnrolment { CourseID = 1, StudentID = 5, Active = false },
+                new CourseEnrolment { CourseID = 2, StudentID = 6, Active = false },
+                new CourseEnrolment { CourseID = 3, StudentID = 7, Active = false }
             });
             _db.SaveChanges();
+
         }
 
         /// <summary>
@@ -219,7 +233,7 @@ namespace API.Services.Providers
         }
 
         /// <summary>
-        /// Retrieves all the students enroled in a given course. Throws NotFound and Db Exceptions.
+        /// Retrieves all active students enroled in a given course. Throws NotFound and Db Exceptions.
         /// </summary>
         /// <param name="courseID">The course in which the students are enroled</param>
         /// <returns>A list of StudentDTOs</returns>
@@ -233,7 +247,7 @@ namespace API.Services.Providers
             {
                 return (from s in _db.Students
                         join ce in _db.CourseEnrolments on s.ID equals ce.StudentID
-                        where ce.CourseID == courseID
+                        where ce.CourseID == courseID && ce.Active == true
                         select new StudentDTO
                         {
                             ID = s.ID,

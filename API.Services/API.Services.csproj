@@ -52,6 +52,7 @@
     <Compile Include="Entities\Course.cs" />
     <Compile Include="Entities\CourseEnrolment.cs" />
     <Compile Include="Entities\CourseTemplate.cs" />
+    <Compile Include="Entities\CourseWaitinglist.cs" />
     <Compile Include="Entities\Student.cs" />
     <Compile Include="Exeptions\DuplicateEntryException.cs" />
     <Compile Include="Exeptions\NotFoundException.cs" />
