@@ -1,11 +1,9 @@
 ﻿using System.Web.Http;
 using API.Services.Providers;
-using API.Models.DTOs;
 using API.Models.VMs;
 using System.Net;
 using API.Services.Exeptions;
 using System;
-using System.Net.Http;
 
 namespace API.Controllers
 {
@@ -37,7 +35,7 @@ namespace API.Controllers
         {
             try
             {
-                return Ok(_service.getAllCourses(semester));
+                return Ok(_service.GetAllCourses(semester));
             }
             catch (Exception)
             {
@@ -57,13 +55,13 @@ namespace API.Controllers
         {
             try
             {
-                return Ok(_service.getCourseByID(id));
+                return Ok(_service.GetCourseById(id));
             }
-            catch (NotFoundException e)
+            catch (NotFoundException)
             {
                 return NotFound();
             }
-            catch (DbException e)
+            catch (DbException)
             {
                 return InternalServerError();
             }
@@ -83,10 +81,10 @@ namespace API.Controllers
 
             try
             {
-                var newCourse = _service.addCourse(course);
+                var newCourse = _service.AddCourse(course);
                 return Created(Url.Link("GetCourseByID", new { id = newCourse.ID }), newCourse);
             }
-            catch (DbException e)
+            catch (DbException)
             {
                 return InternalServerError();
             }
@@ -107,13 +105,13 @@ namespace API.Controllers
 
             try
             {
-                return Ok(_service.updateCourse(id, course));
+                return Ok(_service.UpdateCourse(id, course));
             }
-            catch (NotFoundException e)
+            catch (NotFoundException)
             {
                 return NotFound();
             }
-            catch (DbException e)
+            catch (DbException)
             {
                 return InternalServerError();
             }
@@ -130,14 +128,14 @@ namespace API.Controllers
         {
             try
             {
-                _service.removeCourse(id);
+                _service.RemoveCourse(id);
                 return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (NotFoundException e)
+            catch (NotFoundException)
             {
                 return NotFound();
             }
-            catch (DbException e)
+            catch (DbException)
             {
                 return InternalServerError();
             }
@@ -154,9 +152,9 @@ namespace API.Controllers
         {
             try
             {
-                return Ok(_service.getAllStudents(id));
+                return Ok(_service.GetAllStudents(id));
             }
-            catch (NotFoundException e)
+            catch (NotFoundException)
             {
                 return NotFound();
             }
@@ -176,18 +174,18 @@ namespace API.Controllers
                 return BadRequest("StudentViewModel not valid!");
             try
             {
-                return Ok(_service.addStudentToCourse(id, student));
+                return Ok(_service.AddStudentToCourse(id, student));
             }
-            catch (NotFoundException e)
+            catch (NotFoundException)
             {
                 return NotFound();
             }
-            catch (DuplicateEntryException e)
+            catch (DuplicateEntryException)
             {
                 //return new HttpResponseMessage() { Content = new StringContent("bla"), StatusCode = HttpStatusCode.PreconditionFailed };
                 return StatusCode(HttpStatusCode.PreconditionFailed);
             }
-            catch (DbException e)
+            catch (DbException)
             {
                 return InternalServerError();
             }

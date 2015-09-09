@@ -4,7 +4,7 @@ namespace API.Services.Entities
 {
     /// <summary>
     /// This class represents a single course at our scool.
-    /// </summary
+    /// </summary>
     class Course
     {
         /// <summary>

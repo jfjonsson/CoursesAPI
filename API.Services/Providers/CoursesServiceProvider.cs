@@ -86,7 +86,7 @@ namespace API.Services.Providers
         /// </summary>
         /// <param name="semester">String identifier for the semester yyyys y = year s = semester </param>
         /// <returns>A list of CourseDTOs</returns>
-        public List<CourseDTO> getAllCourses(string semester = null)
+        public List<CourseDTO> GetAllCourses(string semester = null)
         {
             if (string.IsNullOrEmpty(semester))
             {
@@ -119,7 +119,7 @@ namespace API.Services.Providers
         /// </summary>
         /// <param name="course">A valid course view model</param>
         /// <returns>The newly created course entry</returns>
-        public CourseDetailDTO addCourse(CourseDetailViewModel course)
+        public CourseDetailDTO AddCourse(CourseDetailViewModel course)
         {
             try
             {
@@ -133,7 +133,7 @@ namespace API.Services.Providers
 
                 _db.SaveChanges();
 
-                return getCourseByID(newCourse.ID);
+                return GetCourseById(newCourse.ID);
             }
             catch (Exception e)
             {
@@ -144,10 +144,10 @@ namespace API.Services.Providers
         /// <summary>
         /// Attempt to remove a course from the db. Throws NotFound and Db Exceptions.
         /// </summary>
-        /// <param name="courseID">The ID of the course to be removed.</param>
-        public void removeCourse(int courseID)
+        /// <param name="courseId">The ID of the course to be removed.</param>
+        public void RemoveCourse(int courseId)
         {
-            var course = _db.Courses.SingleOrDefault(c => c.ID == courseID);
+            var course = _db.Courses.SingleOrDefault(c => c.ID == courseId);
 
             if (course == null)
                 throw new NotFoundException();
@@ -155,7 +155,7 @@ namespace API.Services.Providers
             try
             {
                 // Remove all students from the course.
-                var enroled = _db.CourseEnrolments.Where(ce => ce.CourseID == courseID);
+                var enroled = _db.CourseEnrolments.Where(ce => ce.CourseID == courseId);
                 _db.CourseEnrolments.RemoveRange(enroled);
 
                 _db.Courses.Remove(course);
@@ -170,13 +170,13 @@ namespace API.Services.Providers
         /// <summary>
         /// Retrieve a single course from the db. Throws NotFound and Db Exceptions.
         /// </summary>
-        /// <param name="courseID">The ID of the course to be recieved</param>
+        /// <param name="courseId">The ID of the course to be recieved</param>
         /// <returns>The CourseDetailDTO for the course</returns>
-        public CourseDetailDTO getCourseByID(int courseID)
+        public CourseDetailDTO GetCourseById(int courseId)
         {
             var result = (from c in _db.Courses
                           join ct in _db.CourseTemplates on c.TemplateID equals ct.TemplateID
-                          where c.ID == courseID
+                          where c.ID == courseId
                           select new CourseDetailDTO
                           {
                               ID = c.ID,
@@ -192,7 +192,7 @@ namespace API.Services.Providers
 
             try
             {
-                result.Students = getAllStudents(result.ID);
+                result.Students = GetAllStudents(result.ID);
                 result.StudentCount = result.Students.Count;
                 _db.SaveChanges();
             }
@@ -208,12 +208,12 @@ namespace API.Services.Providers
         /// <summary>
         /// Update the Start and End dates for a single course. Throws NotFound and Db Exceptions.
         /// </summary>
-        /// <param name="courseID">The ID of the course to be updated</param>
+        /// <param name="courseId">The ID of the course to be updated</param>
         /// <param name="course">A valid Update View Model for a course</param>
         /// <returns>The updated CourseDetailDTO</returns>
-        public CourseDetailDTO updateCourse(int courseID, CourseUpdateDetailViewModel course)
+        public CourseDetailDTO UpdateCourse(int courseId, CourseUpdateDetailViewModel course)
         {
-            var result = _db.Courses.SingleOrDefault(c => c.ID == courseID);
+            var result = _db.Courses.SingleOrDefault(c => c.ID == courseId);
 
             if (result == null)
                 throw new NotFoundException();
@@ -229,17 +229,17 @@ namespace API.Services.Providers
                 throw new DbException(e);
             }
 
-            return getCourseByID(result.ID);
+            return GetCourseById(result.ID);
         }
 
         /// <summary>
         /// Retrieves all active students enroled in a given course. Throws NotFound and Db Exceptions.
         /// </summary>
-        /// <param name="courseID">The course in which the students are enroled</param>
+        /// <param name="courseId">The course in which the students are enroled</param>
         /// <returns>A list of StudentDTOs</returns>
-        public List<StudentDTO> getAllStudents(int courseID)
+        public List<StudentDTO> GetAllStudents(int courseId)
         {
-            var course = _db.Courses.SingleOrDefault(c => c.ID == courseID);
+            var course = _db.Courses.SingleOrDefault(c => c.ID == courseId);
 
             if (course == null)
                 throw new NotFoundException();
@@ -247,7 +247,7 @@ namespace API.Services.Providers
             {
                 return (from s in _db.Students
                         join ce in _db.CourseEnrolments on s.ID equals ce.StudentID
-                        where ce.CourseID == courseID && ce.Active == true
+                        where ce.CourseID == courseId && ce.Active
                         select new StudentDTO
                         {
                             ID = s.ID,
@@ -264,13 +264,13 @@ namespace API.Services.Providers
         /// <summary>
         /// Helper function to count the number of tudents in a given course. Throws DbException.
         /// </summary>
-        /// <param name="courseID">The ID of the course to count the Students from.</param>
+        /// <param name="courseId">The ID of the course to count the Students from.</param>
         /// <returns>The number of students in the course.</returns>
-        private int getStudentCount(int courseID)
+        public int GetStudentCount(int courseId)
         {
             try
             {
-                return (from s in _db.CourseEnrolments where s.CourseID == courseID select s).ToList().Count();
+                return (from s in _db.CourseEnrolments where s.CourseID == courseId select s).ToList().Count;
             }
             catch (Exception e)
             {
@@ -281,13 +281,13 @@ namespace API.Services.Providers
         /// <summary>
         /// Helper functoin to retrieve the Name of a course from CourseTemplates. Throws DbException.
         /// </summary>
-        /// <param name="templateID">The TemplateID of the course</param>
+        /// <param name="templateId">The TemplateID of the course</param>
         /// <returns>The Name pertaining to the given TemplateID</returns>
-        private string getCourseName(string templateID)
+        public string GetCourseName(string templateId)
         {
             try
             {
-                return _db.CourseTemplates.SingleOrDefault(ct => ct.TemplateID == templateID).Name;
+                return _db.CourseTemplates.SingleOrDefault(ct => ct.TemplateID == templateId)?.Name;
             }
             catch (Exception e)
             {
@@ -298,12 +298,12 @@ namespace API.Services.Providers
         /// <summary>
         /// Enrolea new student to a given course. Throws NotFound, DuplicateEntry and DbException.
         /// </summary>
-        /// <param name="courseID">The ID of the course in which the student is enroling.</param>
+        /// <param name="courseId">The ID of the course in which the student is enroling.</param>
         /// <param name="studentModel">A valid StudentViewModel.</param>
         /// <returns>The updated list of students in the course.</returns>
-        public List<StudentDTO> addStudentToCourse(int courseID, StudentViewModel studentModel)
+        public List<StudentDTO> AddStudentToCourse(int courseId, StudentViewModel studentModel)
         {
-            var course = _db.Courses.SingleOrDefault(c => c.ID == courseID);
+            var course = _db.Courses.SingleOrDefault(c => c.ID == courseId);
 
             var student = _db.Students.SingleOrDefault(s => s.SSN == studentModel.SSN);
 
@@ -326,7 +326,7 @@ namespace API.Services.Providers
                 throw new DbException(e);
             }
 
-            return getAllStudents(course.ID);
+            return GetAllStudents(course.ID);
         }
     }
 }
