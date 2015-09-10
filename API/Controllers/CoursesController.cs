@@ -259,7 +259,7 @@ namespace API.Controllers
         {
             try
             {
-                return Content(HttpStatusCode.Created, _service.AddStudentToWaitingList(id, student));
+                return Content(HttpStatusCode.OK, _service.AddStudentToWaitingList(id, student));
             }
             catch (NotFoundException)
             {

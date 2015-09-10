@@ -41,6 +41,7 @@ namespace API.Models.VMs
         /// The maximum number of students that can be enroled in the class at any given time.
         /// Example: 35
         /// </summary>
+        [Required]
         public int MaxStudents { get; set; }
     }
 }

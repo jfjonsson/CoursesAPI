@@ -4,7 +4,7 @@
     [Semester]    VARCHAR (10) NOT NULL,
     [StartDate]   DATETIME     NOT NULL,
     [EndDate]     DATETIME     NOT NULL,
-    [MaxStudents] INT          NULL,
+    [MaxStudents] INT          NOT NULL,
     PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 

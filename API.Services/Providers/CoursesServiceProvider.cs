@@ -30,19 +30,20 @@ namespace API.Services.Providers
             _db.Database.ExecuteSqlCommand("TRUNCATE TABLE Students");
             _db.Database.ExecuteSqlCommand("TRUNCATE TABLE CourseTemplates");
             _db.Database.ExecuteSqlCommand("TRUNCATE TABLE CourseEnrolments");
+            _db.Database.ExecuteSqlCommand("TRUNCATE TABLE CourseWaitinglists");
 
-            _db.Courses.AddRange(new List<Course>
-            {
-                new Course { TemplateID = "T-514-VEFT", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19), MaxStudents = 5 },
-                new Course { TemplateID = "T-514-VEFT", Semester = "20153", StartDate = new DateTime(2015, 8, 17), EndDate = new DateTime(2015, 11, 21), MaxStudents = 10 },
-                new Course { TemplateID = "T-111-PROG", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19), MaxStudents = 5 }
-            });
-            _db.SaveChanges();
+//            _db.Courses.AddRange(new List<Course>
+//            {
+//                new Course { TemplateID = "T-514-VEFT", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19), MaxStudents = 5 },
+//                new Course { TemplateID = "T-514-VEFT", Semester = "20153", StartDate = new DateTime(2015, 8, 17), EndDate = new DateTime(2015, 11, 21), MaxStudents = 10 },
+//                new Course { TemplateID = "T-111-PROG", Semester = "20143", StartDate = new DateTime(2014, 8, 15), EndDate = new DateTime(2014, 11, 19), MaxStudents = 5 }
+//            });
+//            _db.SaveChanges();
 
             _db.CourseTemplates.AddRange(new List<CourseTemplate>
             {
-                new CourseTemplate { TemplateID = "T-514-VEFT", Name = "Vefþjónustur" },
-                new CourseTemplate { TemplateID = "T-111-PROG", Name = "Forritun" },
+                new CourseTemplate { TemplateID = "T-514-VEFT", Name = "Vefþjónustur" }
+//                new CourseTemplate { TemplateID = "T-111-PROG", Name = "Forritun" },
             });
             _db.SaveChanges();
 
@@ -65,19 +66,19 @@ namespace API.Services.Providers
             });
             _db.SaveChanges();
 
-            _db.CourseEnrolments.AddRange(new List<CourseEnrolment>
-            {
-                new CourseEnrolment { CourseID = 1, StudentID = 1, Active = true },
-                new CourseEnrolment { CourseID = 1, StudentID = 2, Active = true },
-                new CourseEnrolment { CourseID = 2, StudentID = 3, Active = true },
-                new CourseEnrolment { CourseID = 2, StudentID = 4, Active = true },
-                new CourseEnrolment { CourseID = 3, StudentID = 1, Active = true },
-                new CourseEnrolment { CourseID = 3, StudentID = 2, Active = true },
-                new CourseEnrolment { CourseID = 1, StudentID = 5, Active = false },
-                new CourseEnrolment { CourseID = 2, StudentID = 6, Active = false },
-                new CourseEnrolment { CourseID = 3, StudentID = 7, Active = false }
-            });
-            _db.SaveChanges();
+//            _db.CourseEnrolments.AddRange(new List<CourseEnrolment>
+//            {
+//                new CourseEnrolment { CourseID = 1, StudentID = 1, Active = true },
+//                new CourseEnrolment { CourseID = 1, StudentID = 2, Active = true },
+//                new CourseEnrolment { CourseID = 2, StudentID = 3, Active = true },
+//                new CourseEnrolment { CourseID = 2, StudentID = 4, Active = true },
+//                new CourseEnrolment { CourseID = 3, StudentID = 1, Active = true },
+//                new CourseEnrolment { CourseID = 3, StudentID = 2, Active = true },
+//                new CourseEnrolment { CourseID = 1, StudentID = 5, Active = false },
+//                new CourseEnrolment { CourseID = 2, StudentID = 6, Active = false },
+//                new CourseEnrolment { CourseID = 3, StudentID = 7, Active = false }
+//            });
+//            _db.SaveChanges();
 
         }
 
@@ -125,10 +126,11 @@ namespace API.Services.Providers
             {
                 var course = _db.Courses.Add(new Course
                 {
-                    TemplateID = addCourse.TemplateID,
-                    Semester   = addCourse.Semester,
-                    StartDate  = addCourse.StartDate,
-                    EndDate    = addCourse.EndDate
+                    TemplateID  = addCourse.TemplateID,
+                    Semester    = addCourse.Semester,
+                    StartDate   = addCourse.StartDate,
+                    EndDate     = addCourse.EndDate,
+                    MaxStudents = addCourse.MaxStudents
                 });
 
                 _db.SaveChanges();
@@ -154,9 +156,13 @@ namespace API.Services.Providers
 
             try
             {
-                // Remove all students from the course.
+                // Remove all students from the course enrolement.
                 var enroled = _db.CourseEnrolments.Where(ce => ce.CourseID == id);
                 _db.CourseEnrolments.RemoveRange(enroled);
+
+                // Remove all students from the course waitinlist.
+                var waiting = _db.CourseWaitinglists.Where(ce => ce.CourseID == id);
+                _db.CourseWaitinglists.RemoveRange(waiting);
 
                 _db.Courses.Remove(course);
                 _db.SaveChanges();
@@ -184,7 +190,8 @@ namespace API.Services.Providers
                               Semester = c.Semester,
                               Name = ct.Name,
                               StartDate = c.StartDate,
-                              EndDate = c.EndDate
+                              EndDate = c.EndDate,
+                              MaxStudents =  c.MaxStudents
                           }).SingleOrDefault();
 
             if (result == null)
@@ -222,6 +229,7 @@ namespace API.Services.Providers
             {
                 result.EndDate = addCourseModel.EndDate;
                 result.StartDate = addCourseModel.StartDate;
+                result.MaxStudents = addCourseModel.MaxStudents;
                 _db.SaveChanges();
             }
             catch (Exception e)
@@ -270,7 +278,7 @@ namespace API.Services.Providers
         {
             try
             {
-                return _db.CourseEnrolments.Count(ce => ce.CourseID == id);
+                return _db.CourseEnrolments.Count(ce => ce.CourseID == id && ce.Active);
             }
             catch (Exception e)
             {
@@ -296,7 +304,7 @@ namespace API.Services.Providers
         }
 
         /// <summary>
-        /// Enrolea new student to a given course. Throws NotFound, DuplicateEntry and DbException.
+        /// Enrolea new student to a given course. Throws NotFound, PreconditionFailed and DbException.
         /// </summary>
         /// <param name="id">The ID of the course in which the student is enroling.</param>
         /// <param name="addStudentModel">A valid StudentViewModel.</param>
@@ -313,18 +321,36 @@ namespace API.Services.Providers
             if (student == null)
                 throw new NotFoundException($"No student with SSN: {addStudentModel.SSN}");
 
+            if (course.MaxStudents <= GetStudentCount(course.ID))
+                throw new PreconditionFailedException("Maximum number of students reached!");
+
             var enroled = _db.CourseEnrolments.SingleOrDefault(
                 e => e.CourseID == course.ID && e.StudentID == student.ID);
 
-            if (enroled != null)
+            if (enroled != null && enroled.Active)
                 throw new PreconditionFailedException($"{student.Name} is already enroled in {course.TemplateID}");
 
-            _db.CourseEnrolments.Add(new CourseEnrolment
+            var waiting = _db.CourseWaitinglists.SingleOrDefault(w => w.CourseID == id && w.StudentID == student.ID);
+
+            if (waiting != null)
             {
-                CourseID  = course.ID,
-                StudentID = student.ID,
-                Active    = true
-            });
+                _db.CourseWaitinglists.Remove(waiting);
+                _db.SaveChanges();
+            }
+
+            if (enroled != null && !enroled.Active)
+            {
+                enroled.Active = true;
+            }
+            else
+            {
+                _db.CourseEnrolments.Add(new CourseEnrolment
+                {
+                    CourseID  = course.ID,
+                    StudentID = student.ID,
+                    Active    = true
+                });
+            }
 
             try
             {
@@ -339,7 +365,7 @@ namespace API.Services.Providers
         }
 
         /// <summary>
-        /// Set a students enrolment status to inactive.
+        /// Set a students enrolment status to inactive. Throws NotFound, PreconditionFailed and Db Exceptions.
         /// </summary>
         /// <param name="id">The ID of the course the student is enroled in</param>
         /// <param name="ssn">The SSN of the student that should be disenroled</param>
@@ -373,7 +399,7 @@ namespace API.Services.Providers
         }
 
         /// <summary>
-        /// Get a list of all student on the waiting list for a gven course.
+        /// Get a list of all student on the waiting list for a gven course. Throws NotFound and DbException.
         /// </summary>
         /// <param name="id">The ID of the course the waiting list is for.</param>
         /// <returns>A list of students in the courses waiting list.</returns>
@@ -403,7 +429,7 @@ namespace API.Services.Providers
         }
 
         /// <summary>
-        /// Add a student to a courses waiting list.
+        /// Add a student to a courses waiting list. Throws NotFound PreconditionFailed and DbException.
         /// </summary>
         /// <param name="id">The ID of the cours the waiting list is for.</param>
         /// <param name="addStudentModel">The view model for the student being added</param>
@@ -419,6 +445,12 @@ namespace API.Services.Providers
 
             if (student == null)
                 throw new NotFoundException($"No student with SSN: {addStudentModel.SSN}");
+
+            var enroled =
+                _db.CourseEnrolments.SingleOrDefault(ce => ce.CourseID == course.ID && ce.StudentID == student.ID && ce.Active);
+
+            if (enroled != null)
+                throw new PreconditionFailedException($"{student.Name} is enroled in the course");
 
             var waiting = _db.CourseWaitinglists.SingleOrDefault(e => e.CourseID == course.ID && e.StudentID == student.ID);
 

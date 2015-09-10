@@ -3,7 +3,7 @@
 namespace API.Models.VMs
 {
     /// <summary>
-    /// A view model for adding an already existing student.
+    /// A view model for adding an already existing student to course (waiting) list.
     /// </summary>
     public class AddStudentViewModel
     {

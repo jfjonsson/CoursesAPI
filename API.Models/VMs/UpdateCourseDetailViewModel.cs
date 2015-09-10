@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace API.Models.VMs
 {
     /// <summary>
-    /// View Model for updating acourse in our system.
+    /// View Model for updating a course in our system.
     /// </summary>
     public class UpdateCourseDetailViewModel
     {
@@ -26,6 +26,7 @@ namespace API.Models.VMs
         /// The maximum number of students that can be enroled in the class at any given time.
         /// Example: 35
         /// </summary>
+        [Required]
         public int MaxStudents { get; set; }
     }
 }
