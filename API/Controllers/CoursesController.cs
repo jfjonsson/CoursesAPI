@@ -74,7 +74,7 @@ namespace API.Controllers
         /// <returns>Bad request or Created status with resulting course</returns>
         [HttpPost]
         [Route("", Name = "AddCourse")]
-        public IHttpActionResult AddCourse([FromBody] CourseDetailViewModel course)
+        public IHttpActionResult AddCourse([FromBody] AddCourseDetailViewModel course)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Course model is not valid!");
@@ -98,7 +98,7 @@ namespace API.Controllers
         /// <returns>The updated course and location</returns>
         [HttpPut]
         [Route("{id}", Name = "UpdateCourse")]
-        public IHttpActionResult UpdateCourse(int id, [FromBody] CourseUpdateDetailViewModel course)
+        public IHttpActionResult UpdateCourse(int id, [FromBody] UpdateCourseDetailViewModel course)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Course model not valid!");
@@ -164,23 +164,23 @@ namespace API.Controllers
         /// Enrole a student in a course.
         /// </summary>
         /// <param name="id">The ID of the course to enrole the student in.</param>
-        /// <param name="student">The student view model.</param>
+        /// <param name="addStudent">The student view model.</param>
         /// <returns>The updated student list of students for the course.</returns>
         [HttpPost]
-        [Route("{id}/students", Name = "AddStudentToCourse")]
-        public IHttpActionResult AddStudent(int id, [FromBody] StudentViewModel student)
+        [Route("{id}/students", Name = "EnroleStudent")]
+        public IHttpActionResult EnroleStudent(int id, [FromBody] AddStudentViewModel addStudent)
         {
             if (!ModelState.IsValid)
                 return BadRequest("StudentViewModel not valid!");
             try
             {
-                return Ok(_service.AddStudentToCourse(id, student));
+                return Content(HttpStatusCode.Created, _service.AddStudentToCourse(id, addStudent));
             }
             catch (NotFoundException)
             {
                 return NotFound();
             }
-            catch (DuplicateEntryException)
+            catch (PreconditionFailedException)
             {
                 //return new HttpResponseMessage() { Content = new StringContent("bla"), StatusCode = HttpStatusCode.PreconditionFailed };
                 return StatusCode(HttpStatusCode.PreconditionFailed);
@@ -190,5 +190,90 @@ namespace API.Controllers
                 return InternalServerError();
             }
         }
+
+
+        /// <summary>
+        /// Disenrole a student from a course. That is set the enrolement status to inactive.
+        /// </summary>
+        /// <param name="id">The ID of the course from whic the student is being disenroled.</param>
+        /// <param name="ssn">The SSN of the student being disenrooled.</param>
+        /// <returns>No content</returns>
+        [HttpDelete]
+        [Route("{id}/students/{ssn}", Name =  "DisenroleStudent")]
+        public IHttpActionResult DisenroleStudent(int id, string ssn)
+        {
+            try
+            {
+                _service.DisenroleStudent(id, ssn);
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            catch (NotFoundException)
+            {
+                    
+                return StatusCode(HttpStatusCode.NotFound);
+            }
+            catch(DbException)
+            {
+                return InternalServerError();
+            }
+        }
+
+
+        /// <summary>
+        /// Retrieve the waiting list of students for a course.
+        /// </summary>
+        /// <param name="id">The ID of the course</param>
+        /// <returns>A list of students</returns>
+        [HttpGet]
+        [Route("{id}/waitinglist", Name = "GetWaitingList")]
+        public IHttpActionResult GetWaitingList(int id)
+        {
+            try
+            {
+                return Ok(_service.GetWaitinglist(id));
+            }
+            catch (NotFoundException)
+            {
+                return StatusCode(HttpStatusCode.NotFound);
+            }
+            catch (PreconditionFailedException)
+            {
+                return StatusCode(HttpStatusCode.PreconditionFailed);
+            }
+            catch (DbException)
+            {
+                return InternalServerError();
+            }
+        }
+
+
+        /// <summary>
+        /// Add a student to a courses waiting list.
+        /// </summary>
+        /// <param name="id">The ID of the course.</param>
+        /// <param name="student">The view model for the student being added.</param>
+        /// <returns>The updated list of students.</returns>
+        [HttpPost]
+        [Route("{id}/waitinglist", Name = "AddStudentToWaitinglList")]
+        public IHttpActionResult AddStudentToWaitingList(int id, [FromBody] AddStudentViewModel student)
+        {
+            try
+            {
+                return Content(HttpStatusCode.Created, _service.AddStudentToWaitingList(id, student));
+            }
+            catch (NotFoundException)
+            {
+                return StatusCode(HttpStatusCode.NotFound);
+            }
+            catch(PreconditionFailedException)
+            {
+                return StatusCode(HttpStatusCode.PreconditionFailed);
+            }
+            catch (DbException)
+            {
+                return InternalServerError();
+            }
+        }
+
     }
 }

@@ -65,7 +65,9 @@ namespace API.Areas.HelpPage
             config.SetActualResponseType(typeof(CourseDetailDTO), "Courses", "AddCourse");
             config.SetActualResponseType(typeof(CourseDetailDTO), "Courses", "UpdateCourse");
             config.SetActualResponseType(typeof(List<StudentDTO>), "Courses", "GetStudents");
-            config.SetActualResponseType(typeof(List<StudentDTO>), "Courses", "AddStudent");
+            config.SetActualResponseType(typeof(List<StudentDTO>), "Courses", "EnroleStudent");
+            config.SetActualResponseType(typeof(List<StudentDTO>), "Courses", "GetWaitingList");
+            config.SetActualResponseType(typeof(List<StudentDTO>), "Courses", "AddStudentToWaitingList");
 
             //// Uncomment the following to use "[0]=foo&[1]=bar" directly as the sample for all actions that support form URL encoded format
             //// and have IEnumerable<string> as the body parameter or return type.

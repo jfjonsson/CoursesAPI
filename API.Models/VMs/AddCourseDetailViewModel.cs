@@ -3,8 +3,26 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API.Models.VMs
 {
-    public class CourseUpdateDetailViewModel
+    /// <summary>
+    /// View Model for adding a new Course to our system.
+    /// </summary>
+    public class AddCourseDetailViewModel
     {
+
+        /// <summary>
+        /// The teplate identifier for the course.
+        /// Example : "T-514-VEFT"
+        /// </summary>
+        [Required]
+        public string TemplateID { get; set; }
+
+        /// <summary>
+        /// The semester identifier for the course.
+        /// Example: "20153" -> year = 2015 semester = 3
+        /// </summary>
+        [Required]
+        public string Semester { get; set; }
+
         /// <summary>
         /// The start date of the course.
         /// Example: 2015-08-17

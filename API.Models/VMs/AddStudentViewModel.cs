@@ -2,7 +2,10 @@
 
 namespace API.Models.VMs
 {
-    public class StudentViewModel
+    /// <summary>
+    /// A view model for adding an already existing student.
+    /// </summary>
+    public class AddStudentViewModel
     {
         /// <summary>
         /// The students social security number.

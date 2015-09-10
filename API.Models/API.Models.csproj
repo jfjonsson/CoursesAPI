@@ -45,10 +45,9 @@
     <Compile Include="DTOs\CourseDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DTOs\StudentDTO.cs" />
-    <Compile Include="VMs\CourseUpdateDetailViewModel.cs" />
-    <Compile Include="VMs\CourseViewModel.cs" />
-    <Compile Include="VMs\CourseDetailViewModel.cs" />
-    <Compile Include="VMs\StudentViewModel.cs" />
+    <Compile Include="VMs\UpdateCourseDetailViewModel.cs" />
+    <Compile Include="VMs\AddCourseDetailViewModel.cs" />
+    <Compile Include="VMs\AddStudentViewModel.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
